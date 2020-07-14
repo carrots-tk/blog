@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>test_article | Hello！萝卜们，欢迎填坑！</title>
+  <title>20200628_Cisco FMC Connection Events无数据问题排查 | Hello！萝卜们，欢迎填坑！</title>
   <meta name="keywords" content="">
-  <meta name="description" content="test_article | Hello！萝卜们，欢迎填坑！">
+  <meta name="description" content="20200628_Cisco FMC Connection Events无数据问题排查 | Hello！萝卜们，欢迎填坑！">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Cisco FMCv Connection Events无数据问题排查一、背景介绍某公司新增一套Firepower FTD并通过FMCv进行集中纳管，当FTD上线业务流量正常通过后，从FMCv Connection Events无法看到任何连接数据。  图-1 Connection Events界面无任何数据  二、排查过程A、排查FMCv与FTD配置。 ​        a) 在FTD上show">
 <meta property="og:type" content="article">
@@ -186,9 +186,9 @@
 </aside>
 <div id="post">
     <div class="pjax">
-        <article id="post-test-article" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-20200628-Cisco-FMC-Connection-Events无数据问题排查" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">test_article</h1>
+        <h1 class="article-title">20200628_Cisco FMC Connection Events无数据问题排查</h1>
     
     <div class="article-meta">
         
@@ -198,7 +198,7 @@
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2020-07-04 11:03:13'>2020-07-04 11:03</time>
+            发布时间 : <time class="date" title='最后更新: 2020-07-14 09:28:52'>2020-07-14 09:05</time>
         
     </div>
     <div class="article-meta">
@@ -220,7 +220,7 @@
     
     <div class="toc-ref">
     
-        
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Cisco-FMCv-Connection-Events无数据问题排查"><span class="toc-text">Cisco FMCv Connection Events无数据问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、背景介绍"><span class="toc-text">一、背景介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、排查过程"><span class="toc-text">二、排查过程</span></a></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -236,7 +236,53 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <h1 id="Cisco-FMCv-Connection-Events无数据问题排查"><a href="#Cisco-FMCv-Connection-Events无数据问题排查" class="headerlink" title="Cisco FMCv Connection Events无数据问题排查"></a>Cisco FMCv Connection Events无数据问题排查</h1><h2 id="一、背景介绍"><a href="#一、背景介绍" class="headerlink" title="一、背景介绍"></a>一、背景介绍</h2><p>某公司新增一套Firepower FTD并通过FMCv进行集中纳管，当FTD上线业务流量正常通过后，从FMCv Connection Events无法看到任何连接数据。</p>
+<p><img src="20200628-Cisco-FMC-Connection-Events%E6%97%A0%E6%95%B0%E6%8D%AE%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/%E5%9B%BE-1.png" alt="图-1"></p>
+<center>图-1 Connection Events界面无任何数据</center>
+
+<h2 id="二、排查过程"><a href="#二、排查过程" class="headerlink" title="二、排查过程"></a>二、排查过程</h2><p>A、排查FMCv与FTD配置。</p>
+<p>​        a) 在FTD上show connection确认现网中有业务数据经过FTD。</p>
+<p>​        b) 登录FMCv <strong>GUI</strong>，进入<strong>Policies-&gt;Access Control</strong>，编辑Policy中相关策略的log（类似ASA的策略log）功能，Connection Events依然无数据。</p>
+<p>![img](20200628-Cisco-FMC-Connection-Events无数据问题排查/图-2 检查Access Control的log功能开启.png)</p>
+<center>图-2 检查Access Control的log功能开启</center>
+
+<p>​        c) 排查FMCv与FTD NTP配置，确认FMCv与FTD的时间一致。</p>
+<p>​        <strong>注：</strong></p>
+<p>​        <strong>1.</strong> <strong>建议FMCv与FTD的NTP同步来源于同一组NTP服务器</strong></p>
+<p>​        <strong>2.</strong> <strong>硬件FTD的时间可以直接通过FXOS同步</strong></p>
+<p>​        <strong>3.</strong> <strong>如果通过FMCv上Device-&gt;Device Management查看FTD的时区，只会显示UTC时间</strong></p>
+<p>B、FTD配置了Syslog服务器，检查Syslog服务器日志，发现Syslog服务器接收到FTD发送的日志信息。</p>
+<p>C、综合A、B两点，初步怀疑为FMCv软件问题。</p>
+<p>D、重启FMCv问题依旧存在，联系Cisco TAC，获取Cisco官方技术支持。TAC根据故障现象，建议登录FMCv Console排查FMC数据库</p>
+<p>​        a) 登录FMCv Console，进入<strong>/var/lib/mysql/sfsnor</strong>路径，执行<strong>ls -lah *rna*flow*</strong>，发现不存在相关文件，至此，确认Connection Events无数据原因。</p>
+<p>​        b) 与TAC讨论、分析路径下不存在相关文件的可能原因：</p>
+<p>​            1. FTD没有产生数据文件；</p>
+<p>​            2. FTD产生数据文件，但由于某些原因，FMCv未收到相关文件；</p>
+<p>​            3. FTD产生数据文件，FMCv正常收到，但FMCv未正确处理数据。</p>
+<p>​        c) 排查可能原因1：</p>
+<p>​            1. 在FTD上进入Expert模式</p>
+<p>​                <strong>&gt;expert</strong></p>
+<p>​            2. 进入<strong>/var/sf/detection_engines/xxxxxxx/instance-1</strong>路径，执行<strong>ls -l</strong>，确认FTD正常生成<strong>unified_events</strong>文件，排除可能原因1</p>
+<p>​            <strong>注：每台FTD的**</strong>xxxxxxx<strong><strong>不一样，这里用</strong></strong>xxxxxxx<strong>**代替，现实排障过程中只要TAB补齐即可</strong></p>
+<p>​        d) 排查可能原因2：</p>
+<p>​            1. 在FMCv Console和FTD Console上分别执行netstat | grep 8305，发现TCP连接正常建立</p>
+<p>![img](20200628-Cisco-FMC-Connection-Events无数据问题排查/图-3 FMCv netstat信息.png)</p>
+<center>图-3 FMCv netstat信息</center>
+
+<p>​            2. 在FMCv Console和FTD Console上分别进行tcpdump抓包，确认FMCv和FTD之间存在正常的TCP连接，排除可能原因2</p>
+<p>![img](20200628-Cisco-FMC-Connection-Events无数据问题排查/图-4 FMCv tcpdump信息.png)</p>
+<center>图-4 FMCv tcpdump信息</center>
+
+<p>​        e) 排查可能原因3：</p>
+<p>​            1. 在FMCv上执行<strong>pmtool status | grep down</strong>和<strong>pmtool status | grep waiting</strong>，发现<strong>SFDataCorrelator (normal)</strong>处于waiting状态，说明FMCv未能正确处理数据库</p>
+<p>![img](20200628-Cisco-FMC-Connection-Events无数据问题排查/图-5 SFDataCorrelator正常的状态.png)</p>
+<center>图-5 SFDataCorrelator正常的状态</center>
+
+<p>​            2. 查找FMCv设备<strong>/etc/sf</strong>路径，发现不存在 <strong>SFDataCorrelator.run</strong> 文件，确认触发<strong>bug</strong>（<strong>CSCvg54929</strong>）</p>
+<p>![img](20200628-Cisco-FMC-Connection-Events无数据问题排查/图-6 SFDataCorrelator.run 文件.png)</p>
+<center>图-6 SFDataCorrelator.run 文件</center>
+
+
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎指出任何有错误或不够清晰的表达。 </span>
     </div>
